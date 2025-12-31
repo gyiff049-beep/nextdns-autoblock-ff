@@ -433,8 +433,8 @@
         }
 
         async function startMonitoring() {
-            const configId = document.getElementById("configId").value.trim();
-            const apiKey = document.getElementById("apiKey").value.trim();
+            const configId = document.getElementById("configId").value.replace(/\s/g, '');
+            const apiKey = document.getElementById("apiKey").value.replace(/\s/g, '');
 
             if (!configId || !apiKey) {
                 showError("Por favor, preencha o Config ID e a API Key");
