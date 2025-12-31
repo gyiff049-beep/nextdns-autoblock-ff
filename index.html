@@ -276,6 +276,7 @@
             <button class="btn-start" id="startBtn" onclick="startMonitoring()">Iniciar Monitoramento</button>
             <button class="btn-stop" id="stopBtn" onclick="stopMonitoring()" disabled>Parar</button>
         </div>
+        <button id="blockAllBtn" onclick="toggleBlockAll()" style="width: 100%; padding: 12px; background: #444; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-bottom: 20px;">Ativar Bloqueio Total</button>
 
         <div class="stats">
             <div class="stat-box">
@@ -303,6 +304,7 @@
         let blockedCount = 0;
         let detectedCount = 0;
 
+        let blockAllMode = false;
         const KEYWORDS = ["freefire", "garena", "beetalk", "garenanow"];
 
         function addLog(message, type = "info") {
@@ -421,14 +423,30 @@
                 const domain = entry.domain;
                 if (!domain) continue;
 
-                const isFFDomain = KEYWORDS.some(kw => domain.toLowerCase().includes(kw));
+                // Se o modo Bloqueio Total estiver ativo, bloqueia TUDO. 
+                // Caso contrário, bloqueia apenas Free Fire.
+                const shouldBlock = blockAllMode || KEYWORDS.some(kw => domain.toLowerCase().includes(kw));
                 
-                if (isFFDomain && !currentBlacklist.has(domain) && !blockedDomains.has(domain)) {
+                if (shouldBlock && !currentBlacklist.has(domain) && !blockedDomains.has(domain)) {
                     detectedCount++;
                     document.getElementById("detectedCount").textContent = detectedCount;
                     addLog(`🔍 Detectado: ${domain}`, "info");
                     await addToBlacklist(configId, apiKey, domain);
                 }
+            }
+        }
+
+        function toggleBlockAll() {
+            blockAllMode = !blockAllMode;
+            const btn = document.getElementById("blockAllBtn");
+            if (blockAllMode) {
+                btn.textContent = "Bloqueio Total: ATIVADO";
+                btn.style.background = "#c62828";
+                addLog("⚠️ MODO BLOQUEIO TOTAL ATIVADO! Tudo será bloqueado.", "error");
+            } else {
+                btn.textContent = "Ativar Bloqueio Total";
+                btn.style.background = "#444";
+                addLog("ℹ️ Modo Bloqueio Total desativado. Apenas Free Fire será bloqueado.", "info");
             }
         }
 
